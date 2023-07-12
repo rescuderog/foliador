@@ -162,14 +162,14 @@ def consolidar_pdf(target_dir, result_dir, result_file: PdfWriter, listaDatos, n
         uhsaPDF = PdfReader(open(convertir_a_pdf(ultimahoja_UHSA, 'uhsa', target_dir), 'rb'))
     ultimahojaPDF = PdfReader(open(convertir_a_pdf(ultimahoja, 'ultimaHojaComp', target_dir), 'rb'))
     page = ultimahojaPDF.pages[0]
-    w = page.mediabox.height
-    h = page.mediabox.width
+    page.scale_to(width=612, height=1008)
     pagenumber = numberOfPages
     folioStr = f"Folio {pagenumber:03d} de {numberOfPages:03d}"
     packet = io.BytesIO()
     createFolioPage(folioStr, packet)
     packet.seek(0)
     new_pdf = PdfReader(packet)
+    new_pdf.pages[0].scale_to(width=612, height=1008)
     page.merge_page(new_pdf.pages[0])
     result_file.add_page(page)
     if uhsaPDF:

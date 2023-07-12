@@ -2,3 +2,5 @@
 por_foliar/*
 foliado/*
 __pycache__/
+build/
+dist/

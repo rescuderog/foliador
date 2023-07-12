@@ -1,6 +1,7 @@
 from metodos import leer_archivos_en_carpeta, convertir_a_pdf, combinar_cwd_dir, getNumOfPages, foliar_archivo, consolidar_pdf, registrar_fuente_custom
 from pypdf import PdfWriter
-import json
+import json, random
+from ascii_art import skull
 
 #App de consola para generar pdfs foliados en base a lo contenido en una carpeta target
 CARPETA_TARGET = './por_foliar/'
@@ -63,3 +64,10 @@ for archivo in list_archivos:
     folio = folio_num
 
 consolidar_pdf(combinar_cwd_dir(CARPETA_TARGET), combinar_cwd_dir(CARPETA_RESULTADO), output, datosAlumno, numPags)
+
+numero = random.randint(0, 10)
+if numero > 4:
+    print("\n\n\n\n")
+    print(skull)
+
+input("Programas finalizados! Chequear en la carpeta foliado. Saludos")

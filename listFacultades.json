@@ -2,7 +2,7 @@
     "facultades": {
         "1": {
             "facultad": "Facultad de Ingeniería y Cs. Agrarias",
-            "hoja_modelo": "modelofacing.docx"
+            "hoja_modelo": "./modelosuh/modelofacing.docx"
         }
     }
 }
