@@ -1,7 +1,7 @@
 from metodos import leer_archivos_en_carpeta, convertir_a_pdf, combinar_cwd_dir, getNumOfPages, foliar_archivo, consolidar_pdf, registrar_fuente_custom
 from pypdf import PdfWriter
 import json, random
-from ascii_art import skull
+from ascii_art import skull, skull2, skull3
 
 #App de consola para generar pdfs foliados en base a lo contenido en una carpeta target
 CARPETA_TARGET = './por_foliar/'
@@ -24,6 +24,11 @@ sexo = input('Ingresar sexo del alumno (SOLO M o F): ')
 antequien = input('SOLO SI LO PIDE, ingresar ante quien se lo presenta: ')
 carrera = input('Ingrese la carrera del alumno: ')
 
+uhsa = input('UHSA? (Ingresar algo, de lo contrario, presionar ENTER): ')
+if uhsa:
+    uhsa = True
+else:
+    uhsa = False
 
 diccionario = leer_archivos_en_carpeta(CARPETA_TARGET)
 list_archivos = []
@@ -46,12 +51,6 @@ for i, nombre_archivo in enumerate(list_names):
     else:
         list_materias.append(nombre_archivo)
 
-uhsa = input('UHSA? (Ingresar algo, de lo contrario, presionar ENTER): ')
-if uhsa:
-    uhsa = True
-else:
-    uhsa = False
-
 datosAlumno = [list_materias, dni, nombre, apellido, sexo, antequien, carrera, uhsa, ultimahoja_fac]
 
 numPags = getNumOfPages(list_archivos)
@@ -68,6 +67,14 @@ consolidar_pdf(combinar_cwd_dir(CARPETA_TARGET), combinar_cwd_dir(CARPETA_RESULT
 numero = random.randint(0, 10)
 if numero > 4:
     print("\n\n\n\n")
-    print(skull)
+    if numero > 4 and numero < 7:
+        print(skull)
+    elif numero > 6 and numero < 9:
+        print(skull2)
+    else:
+        print(skull3)
+
+    print("\n\n\n\n")
+
 
 input("Programas finalizados! Chequear en la carpeta foliado. Saludos")

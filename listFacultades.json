@@ -3,6 +3,18 @@
         "1": {
             "facultad": "Facultad de Ingeniería y Cs. Agrarias",
             "hoja_modelo": "./modelosuh/modelofacing.docx"
+        },
+        "2": {
+            "facultad": "Facultad de Psicología y Psicopedagogía",
+            "hoja_modelo": "./modelosuh/modelofacpsico.docx"
+        },
+        "3": {
+            "facultad": "Facultad de Ciencias Económicas",
+            "hoja_modelo": "./modelosuh/modelofaceco.docx"
+        },
+        "4": {
+            "facultad": "Facultad de Ciencias Sociales",
+            "hoja_modelo": "./modelosuh/modelofacsoc.docx"
         }
     }
 }
