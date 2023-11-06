@@ -85,8 +85,11 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         h = page.mediabox.height
         w = page.mediabox.width
         orientation = existing_pdf.pages[i].mediabox
+        is_landscape = False
         if orientation.right - orientation.left > orientation.top - orientation.bottom:
-            page = existing_pdf.pages[i].rotateCounterClockwise(90)
+            page = existing_pdf.pages[i].rotate(270)
+            page.rotation = 270
+            is_landscape = True
         if h != 1008 or w != 612:
             page.scale_to(width=612, height=1008)
         # create a new PDF with Reportlab
@@ -98,6 +101,8 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         new_pdf.pages[0].scale_to(width=612, height=1008)
         # add the "watermark" (which is the new pdf) on the existing page
         page.merge_page(new_pdf.pages[0], over=True)
+        if is_landscape:
+            page.transfer_rotation_to_content()
         output.add_page(page)
     return folio_start
 

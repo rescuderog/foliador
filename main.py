@@ -17,6 +17,12 @@ with open('listFacultades.json', encoding="utf8") as f:
     facultad_sel = input("Seleccione la facultad deseada ingresando el número: ")
     ultimahoja_fac = data["facultades"][facultad_sel]["hoja_modelo"]
 
+ignore_files = {}
+with open('ignore_files.json', encoding="utf8") as j:
+    data = json.load(j)
+    for key in data['ignore_files'].keys():
+        ignore_files[key] = True
+
 dni = input('Ingresar el DNI del alumno: ')
 nombre = input('Ingresar el nombre del alumno: ')
 apellido = input('Ingresar el apellido del alumno: ')
@@ -36,6 +42,8 @@ list_names = []
 list_materias = []
 
 for key in diccionario.keys():
+    if diccionario[key]['completo'] in ignore_files.keys():
+        continue
     path = convertir_a_pdf(diccionario[key]['ruta'], diccionario[key]['nombre'], combinar_cwd_dir(CARPETA_TARGET))
     if path:
         list_archivos.append(path)
