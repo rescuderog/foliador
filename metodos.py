@@ -71,7 +71,6 @@ def getNumOfPages(pdf_list):
         pdf = PdfReader(open(pdf, 'rb'))
         numPages = len(pdf.pages)
         totalNumOfPages = totalNumOfPages + numPages
-    totalNumOfPages = totalNumOfPages + 1
     return totalNumOfPages
 
 def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter):
@@ -114,37 +113,53 @@ def checkGender(genderValue):
     else:
         return " "
 
-def generate_materias(lista_materias, magicCharNumberPerLine):
-    materiaRT = RichText()
+def generate_materias(lista_materias):
+    materiaList = []
     for i, materia in enumerate(lista_materias):
-
-        magicCharNumberPerLine2 = magicCharNumberPerLine - len(materia)
         materia = f'{i+1}.{materia}'
-        materia = materia.ljust(magicCharNumberPerLine2, '-')
         if i != 0:
-            materia = '\n' + materia
-        materiaRT.add(materia, font='Times New Roman', size=22)
-    return materiaRT
+            materia = "\n" + materia
+        materiaList.append(materia)
+    return materiaList
 
-def generateUltimaHoja(listaDatos, numTotalPages, result_dir):
-    magicCharNumberPerLine = 110
-    targetFile = listaDatos[8]
+def generateWordDocUH(context, targetFile, result_dir):
     templateDocx = DocxTemplate(targetFile)
-    listNombreMaterias = generate_materias(listaDatos[0], 125)
-    numTotalWords = num2words(numTotalPages, lang='es')
-    locale.setlocale(locale.LC_ALL, '')
-    fechaylugar = datetime.today().strftime("Buenos Aires, %d de %B de %Y")
-    fechaylugar = fechaylugar.ljust(magicCharNumberPerLine, '-')
-    remainingSpaceEstAsig = 87 - len(str(numTotalPages)) - len(numTotalWords)
-    asigLineas = ''.ljust(remainingSpaceEstAsig, '-')
-    remainingSpaceEstFinal = 95 - len('Sr.') - len(listaDatos[2]) - len(listaDatos[3]) - len(listaDatos[1])
-    finalLineas = ''.ljust(remainingSpaceEstFinal, '-')
-    context = {'numfolios': numTotalPages, 'foliosletras': numTotalWords, 'asigList': listNombreMaterias, 'sexo': checkGender(listaDatos[4]), 
-    'apellido': listaDatos[3], 'nombre': listaDatos[2], 'dni': listaDatos[1], 'fechaylugar': fechaylugar, 
-    'asigLineas': asigLineas, 'finalLineas': finalLineas, 'antequien': listaDatos[5], 'carrera': listaDatos[6]}
     templateDocx.render(context)
     saveFileName = os.path.join(result_dir, f'ResultingUltimaHoja-{datetime.now().timestamp()}.docx')
     templateDocx.save(saveFileName)
+    return saveFileName
+
+def set_config_uh(listaDatos, numTotalPages, simulation=False):
+    targetFile = listaDatos[8]
+    listNombreMaterias = generate_materias(listaDatos[0])
+    numTotalWords = num2words(numTotalPages, lang='es')
+    locale.setlocale(locale.LC_ALL, '')
+    fechaylugar = datetime.today().strftime("Buenos Aires, %d de %B de %Y")
+    if simulation:
+        context = {'numfolios': 500, 'foliosletras': numTotalWords, 'asigList': listNombreMaterias, 
+                'sexo': checkGender(listaDatos[4]), 'apellido': listaDatos[3], 'nombre': listaDatos[2], 
+                'dni': listaDatos[1], 'fechaylugar': fechaylugar, 'antequien': listaDatos[5], 
+                'carrera': listaDatos[6]}
+    else:
+        context = {'numfolios': numTotalPages, 'foliosletras': numTotalWords, 'asigList': listNombreMaterias, 
+                'sexo': checkGender(listaDatos[4]), 'apellido': listaDatos[3], 'nombre': listaDatos[2], 
+                'dni': listaDatos[1], 'fechaylugar': fechaylugar, 'antequien': listaDatos[5], 
+                'carrera': listaDatos[6]}
+    
+    return targetFile, context
+
+def simulate_generar_uh(listaDatos, numTotalPages, result_dir):
+    targetFile, context_test = set_config_uh(listaDatos, numTotalPages, simulation=True)
+    temp_file = generateWordDocUH(context_test, targetFile, result_dir)
+    print(temp_file)
+    ultimahojaPDFTemp = PdfReader(open(convertir_a_pdf(temp_file, 'ultimaHojaComp', result_dir), 'rb'))
+    pages = len(ultimahojaPDFTemp.pages)
+    numTotalPages = numTotalPages + pages
+    return numTotalPages
+
+def generateUltimaHoja(listaDatos, numTotalPages, result_dir):
+    targetFile, context = set_config_uh(listaDatos, numTotalPages)
+    saveFileName = generateWordDocUH(context, targetFile, result_dir)
     saveFileName_uhsa = None
     if listaDatos[7]:
         fecha = datetime.today().strftime("%d/%m/%Y")
@@ -155,7 +170,7 @@ def generateUltimaHoja(listaDatos, numTotalPages, result_dir):
         saveFileName_uhsa = os.path.join(result_dir, f'UHSA-{datetime.now().timestamp()}.docx')
         templateDocx_uhsa.save(saveFileName_uhsa)
 
-    return saveFileName, saveFileName_uhsa 
+    return saveFileName, saveFileName_uhsa
 
 def consolidar_pdf(target_dir, result_dir, result_file: PdfWriter, listaDatos, numberOfPages):
     #consolida el output del PdfFileWriter en un pdf, y le agrega la ultima hoja y la UHSA si aplica
@@ -166,17 +181,19 @@ def consolidar_pdf(target_dir, result_dir, result_file: PdfWriter, listaDatos, n
     if ultimahoja_UHSA:
         uhsaPDF = PdfReader(open(convertir_a_pdf(ultimahoja_UHSA, 'uhsa', target_dir), 'rb'))
     ultimahojaPDF = PdfReader(open(convertir_a_pdf(ultimahoja, 'ultimaHojaComp', target_dir), 'rb'))
-    page = ultimahojaPDF.pages[0]
-    page.scale_to(width=612, height=1008)
-    pagenumber = numberOfPages
-    folioStr = f"Folio {pagenumber:03d} de {numberOfPages:03d}"
-    packet = io.BytesIO()
-    createFolioPage(folioStr, packet)
-    packet.seek(0)
-    new_pdf = PdfReader(packet)
-    new_pdf.pages[0].scale_to(width=612, height=1008)
-    page.merge_page(new_pdf.pages[0])
-    result_file.add_page(page)
+    for i in range(0, len(ultimahojaPDF.pages)):
+        pagenumber = numberOfPages - len(ultimahojaPDF.pages) + i + 1
+        folioStr = f"Folio {pagenumber:03d} de {numberOfPages:03d}"
+        page = ultimahojaPDF.pages[i]
+        page.scale_to(width=612, height=1008)
+        packet = io.BytesIO()
+        createFolioPage(folioStr, packet)
+        packet.seek(0)
+        new_pdf = PdfReader(packet)
+        new_pdf.pages[0].scale_to(width=612, height=1008)
+        page.merge_page(new_pdf.pages[0])
+        result_file.add_page(page)
+
     if uhsaPDF:
         pageUHSA = uhsaPDF.pages[0]
         result_file.add_page(pageUHSA)

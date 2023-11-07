@@ -1,5 +1,7 @@
 {
     "ignore_files": {
-        "desktop.ini": true
+        "desktop.ini": true,
+        "uhsa.pdf": true,
+        "ultimaHojaComp.pdf": true
     }
 }

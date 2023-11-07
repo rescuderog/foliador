@@ -1,4 +1,4 @@
-from metodos import leer_archivos_en_carpeta, convertir_a_pdf, combinar_cwd_dir, getNumOfPages, foliar_archivo, consolidar_pdf, registrar_fuente_custom
+from metodos import leer_archivos_en_carpeta, convertir_a_pdf, combinar_cwd_dir, getNumOfPages, foliar_archivo, consolidar_pdf, registrar_fuente_custom, simulate_generar_uh
 from pypdf import PdfWriter
 import json, random
 from ascii_art import skull, skull2, skull3
@@ -61,7 +61,7 @@ for i, nombre_archivo in enumerate(list_names):
 
 datosAlumno = [list_materias, dni, nombre, apellido, sexo, antequien, carrera, uhsa, ultimahoja_fac]
 
-numPags = getNumOfPages(list_archivos)
+numPags = simulate_generar_uh(datosAlumno, getNumOfPages(list_archivos), combinar_cwd_dir(CARPETA_TEMP))
 folio = 0
 output = PdfWriter()
 registrar_fuente_custom('Verdana.ttf')
