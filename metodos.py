@@ -3,13 +3,14 @@ import io
 import locale
 from comtypes.client import CreateObject
 from pypdf import PdfReader, PdfWriter
-from docxtpl import DocxTemplate, RichText
+from docxtpl import DocxTemplate
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, A4
 from datetime import datetime
 from num2words import num2words
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from unidecode import unidecode
 
 # metodos principales
 
@@ -24,17 +25,18 @@ def combinar_cwd_dir(directorio):
 
 def leer_archivos_en_carpeta(carpeta):
     folderPath = combinar_cwd_dir(carpeta)
-    dictArchivos = {}
+    listArchivos = []
     for i, file in enumerate(os.listdir(folderPath)):
         if os.path.isfile(os.path.join(folderPath, file)):
             nombre, extension = os.path.splitext(file)
-            dictArchivos[i] = {
+            listArchivos.append({
                 'nombre': nombre,
                 'ext': extension,
                 'completo': file,
                 'ruta': os.path.join(folderPath, file)
-            }
-    return dictArchivos
+            })
+    listArchivos.sort(key=lambda s: unidecode(s['nombre']).casefold())
+    return listArchivos
 
 
 def chequear_word(extension):

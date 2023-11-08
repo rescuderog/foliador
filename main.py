@@ -1,6 +1,6 @@
 from metodos import leer_archivos_en_carpeta, convertir_a_pdf, combinar_cwd_dir, getNumOfPages, foliar_archivo, consolidar_pdf, registrar_fuente_custom, simulate_generar_uh
 from pypdf import PdfWriter
-from unidecode import unidecode
+
 import json
 import random
 from ascii_art import skull, skull2, skull3
@@ -44,17 +44,17 @@ list_archivos = []
 list_names = []
 list_materias = []
 
-for key in diccionario.keys():
-    if diccionario[key]['completo'] in ignore_files.keys():
+for key in diccionario:
+    if key['completo'] in ignore_files.keys():
         continue
     path = convertir_a_pdf(
-        diccionario[key]['ruta'], diccionario[key]['nombre'], combinar_cwd_dir(CARPETA_TARGET))
+        key['ruta'], key['nombre'], combinar_cwd_dir(CARPETA_TARGET))
     if path:
         list_archivos.append(path)
-        list_names.append(diccionario[key]['nombre'])
+        list_names.append(key['nombre'])
     else:
-        list_archivos.append(diccionario[key]['ruta'])
-        list_names.append(diccionario[key]['nombre'])
+        list_archivos.append(key['ruta'])
+        list_names.append(key['nombre'])
 
 for i, nombre_archivo in enumerate(list_names):
     new_name = input(
@@ -63,8 +63,6 @@ for i, nombre_archivo in enumerate(list_names):
         list_materias.append(new_name)
     else:
         list_materias.append(nombre_archivo)
-
-list_materias.sort(key=lambda s: unidecode(s).casefold())
 
 datosAlumno = [list_materias, dni, nombre, apellido,
                sexo, antequien, carrera, uhsa, ultimahoja_fac]
