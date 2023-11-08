@@ -1,4 +1,6 @@
-import os, io, locale
+import os
+import io
+import locale
 from comtypes.client import CreateObject
 from pypdf import PdfReader, PdfWriter
 from docxtpl import DocxTemplate, RichText
@@ -9,13 +11,16 @@ from num2words import num2words
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-#metodos principales
+# metodos principales
+
 
 def registrar_fuente_custom(font_file):
     pdfmetrics.registerFont(TTFont('Verdana', font_file))
 
+
 def combinar_cwd_dir(directorio):
     return os.path.join(os.getcwd(), directorio)
+
 
 def leer_archivos_en_carpeta(carpeta):
     folderPath = combinar_cwd_dir(carpeta)
@@ -31,15 +36,17 @@ def leer_archivos_en_carpeta(carpeta):
             }
     return dictArchivos
 
+
 def chequear_word(extension):
     if extension == ".doc" or extension == ".docx":
         return True
     else:
         return False
 
+
 def convertir_a_pdf(archivo_ruta, archivo_nombre, target_dir):
-    #recibe ruta completa del archivo, retorna False si no es .doc, retorna el path del archivo
-    #si se convierte el archivo sin errores
+    # recibe ruta completa del archivo, retorna False si no es .doc, retorna el path del archivo
+    # si se convierte el archivo sin errores
     if not chequear_word(os.path.splitext(archivo_ruta)[1]):
         return False
     archivo_nombre = archivo_nombre + '.pdf'
@@ -52,18 +59,21 @@ def convertir_a_pdf(archivo_ruta, archivo_nombre, target_dir):
     wdToPDF.Quit()
     return resulting_path
 
+
 def createFolioPage(folioStr, packet):
-    #crea la pagina solapada de folio, retorna el paquete de bytes
+    # crea la pagina solapada de folio, retorna el paquete de bytes
     can = canvas.Canvas(packet, pagesize=letter)
     can.setFont("Verdana", 18)
     can.roundRect(485, 730, 100, 50, 1.5)
-    can.drawImage("logoUCAlong.jpg", 490, 750, 90, 30, mask='auto',  preserveAspectRatio=True)
-    #can.drawString(529, 967, "UCA")
+    can.drawImage("logoUCAlong.jpg", 490, 750, 90, 30,
+                  mask='auto',  preserveAspectRatio=True)
+    # can.drawString(529, 967, "UCA")
     can.setFont("Verdana", 11)
     can.drawString(489, 740, folioStr)
     can.showPage()
     can.save()
     return packet
+
 
 def getNumOfPages(pdf_list):
     totalNumOfPages = 0
@@ -73,9 +83,10 @@ def getNumOfPages(pdf_list):
         totalNumOfPages = totalNumOfPages + numPages
     return totalNumOfPages
 
+
 def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter):
-    #lee el pdf y agrega la hoja foliada (solapa una hoja arriba de la existente).
-    #el output es el nro de folios en el que quedo el contador.
+    # lee el pdf y agrega la hoja foliada (solapa una hoja arriba de la existente).
+    # el output es el nro de folios en el que quedo el contador.
     existing_pdf = PdfReader(open(archivo_ruta, 'rb'))
     for i in range(0, len(existing_pdf.pages)):
         folio_start = folio_start + 1
@@ -94,7 +105,7 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         # create a new PDF with Reportlab
         packet = io.BytesIO()
         packet = createFolioPage(folioStr, packet)
-        #move to the beginning of the StringIO buffer
+        # move to the beginning of the StringIO buffer
         packet.seek(0)
         new_pdf = PdfReader(packet)
         new_pdf.pages[0].scale_to(width=612, height=1008)
@@ -105,6 +116,7 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         output.add_page(page)
     return folio_start
 
+
 def checkGender(genderValue):
     if genderValue == "M":
         return "del Sr."
@@ -112,6 +124,7 @@ def checkGender(genderValue):
         return "de la Srta."
     else:
         return " "
+
 
 def generate_materias(lista_materias):
     materiaList = []
@@ -122,12 +135,15 @@ def generate_materias(lista_materias):
         materiaList.append(materia)
     return materiaList
 
+
 def generateWordDocUH(context, targetFile, result_dir):
     templateDocx = DocxTemplate(targetFile)
     templateDocx.render(context)
-    saveFileName = os.path.join(result_dir, f'ResultingUltimaHoja-{datetime.now().timestamp()}.docx')
+    saveFileName = os.path.join(
+        result_dir, f'ResultingUltimaHoja-{datetime.now().timestamp()}.docx')
     templateDocx.save(saveFileName)
     return saveFileName
+
 
 def set_config_uh(listaDatos, numTotalPages, simulation=False):
     targetFile = listaDatos[8]
@@ -136,26 +152,29 @@ def set_config_uh(listaDatos, numTotalPages, simulation=False):
     locale.setlocale(locale.LC_ALL, '')
     fechaylugar = datetime.today().strftime("Buenos Aires, %d de %B de %Y")
     if simulation:
-        context = {'numfolios': 500, 'foliosletras': numTotalWords, 'asigList': listNombreMaterias, 
-                'sexo': checkGender(listaDatos[4]), 'apellido': listaDatos[3], 'nombre': listaDatos[2], 
-                'dni': listaDatos[1], 'fechaylugar': fechaylugar, 'antequien': listaDatos[5], 
-                'carrera': listaDatos[6]}
+        context = {'numfolios': 500, 'foliosletras': numTotalWords, 'asigList': listNombreMaterias,
+                   'sexo': checkGender(listaDatos[4]), 'apellido': listaDatos[3], 'nombre': listaDatos[2],
+                   'dni': listaDatos[1], 'fechaylugar': fechaylugar, 'antequien': listaDatos[5],
+                   'carrera': listaDatos[6]}
     else:
-        context = {'numfolios': numTotalPages, 'foliosletras': numTotalWords, 'asigList': listNombreMaterias, 
-                'sexo': checkGender(listaDatos[4]), 'apellido': listaDatos[3], 'nombre': listaDatos[2], 
-                'dni': listaDatos[1], 'fechaylugar': fechaylugar, 'antequien': listaDatos[5], 
-                'carrera': listaDatos[6]}
-    
+        context = {'numfolios': numTotalPages, 'foliosletras': numTotalWords, 'asigList': listNombreMaterias,
+                   'sexo': checkGender(listaDatos[4]), 'apellido': listaDatos[3], 'nombre': listaDatos[2],
+                   'dni': listaDatos[1], 'fechaylugar': fechaylugar, 'antequien': listaDatos[5],
+                   'carrera': listaDatos[6]}
+
     return targetFile, context
 
+
 def simulate_generar_uh(listaDatos, numTotalPages, result_dir):
-    targetFile, context_test = set_config_uh(listaDatos, numTotalPages, simulation=True)
+    targetFile, context_test = set_config_uh(
+        listaDatos, numTotalPages, simulation=True)
     temp_file = generateWordDocUH(context_test, targetFile, result_dir)
-    print(temp_file)
-    ultimahojaPDFTemp = PdfReader(open(convertir_a_pdf(temp_file, 'ultimaHojaComp', result_dir), 'rb'))
+    ultimahojaPDFTemp = PdfReader(open(convertir_a_pdf(
+        temp_file, 'ultimaHojaComp', result_dir), 'rb'))
     pages = len(ultimahojaPDFTemp.pages)
     numTotalPages = numTotalPages + pages
     return numTotalPages
+
 
 def generateUltimaHoja(listaDatos, numTotalPages, result_dir):
     targetFile, context = set_config_uh(listaDatos, numTotalPages)
@@ -167,20 +186,26 @@ def generateUltimaHoja(listaDatos, numTotalPages, result_dir):
         targetFile_uhsa = "modelouhsa.docx"
         templateDocx_uhsa = DocxTemplate(targetFile_uhsa)
         templateDocx_uhsa.render(context_uhsa)
-        saveFileName_uhsa = os.path.join(result_dir, f'UHSA-{datetime.now().timestamp()}.docx')
+        saveFileName_uhsa = os.path.join(
+            result_dir, f'UHSA-{datetime.now().timestamp()}.docx')
         templateDocx_uhsa.save(saveFileName_uhsa)
 
     return saveFileName, saveFileName_uhsa
 
+
 def consolidar_pdf(target_dir, result_dir, result_file: PdfWriter, listaDatos, numberOfPages):
-    #consolida el output del PdfFileWriter en un pdf, y le agrega la ultima hoja y la UHSA si aplica
-    outputFilename = os.path.join(result_dir, f"ProgramasCompilados-{datetime.now().timestamp()}.pdf")
+    # consolida el output del PdfFileWriter en un pdf, y le agrega la ultima hoja y la UHSA si aplica
+    outputFilename = os.path.join(
+        result_dir, f"ProgramasCompilados-{datetime.now().timestamp()}.pdf")
     outputStream = open(outputFilename, "wb")
-    ultimahoja, ultimahoja_UHSA = generateUltimaHoja(listaDatos, numberOfPages, result_dir)
+    ultimahoja, ultimahoja_UHSA = generateUltimaHoja(
+        listaDatos, numberOfPages, result_dir)
     uhsaPDF = None
     if ultimahoja_UHSA:
-        uhsaPDF = PdfReader(open(convertir_a_pdf(ultimahoja_UHSA, 'uhsa', target_dir), 'rb'))
-    ultimahojaPDF = PdfReader(open(convertir_a_pdf(ultimahoja, 'ultimaHojaComp', target_dir), 'rb'))
+        uhsaPDF = PdfReader(open(convertir_a_pdf(
+            ultimahoja_UHSA, 'uhsa', target_dir), 'rb'))
+    ultimahojaPDF = PdfReader(open(convertir_a_pdf(
+        ultimahoja, 'ultimaHojaComp', target_dir), 'rb'))
     for i in range(0, len(ultimahojaPDF.pages)):
         pagenumber = numberOfPages - len(ultimahojaPDF.pages) + i + 1
         folioStr = f"Folio {pagenumber:03d} de {numberOfPages:03d}"
