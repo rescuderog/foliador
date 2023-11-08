@@ -1,5 +1,6 @@
 from metodos import leer_archivos_en_carpeta, convertir_a_pdf, combinar_cwd_dir, getNumOfPages, foliar_archivo, consolidar_pdf, registrar_fuente_custom, simulate_generar_uh
 from pypdf import PdfWriter
+from unidecode import unidecode
 import json
 import random
 from ascii_art import skull, skull2, skull3
@@ -63,7 +64,7 @@ for i, nombre_archivo in enumerate(list_names):
     else:
         list_materias.append(nombre_archivo)
 
-list_materias.sort()
+list_materias.sort(key=lambda s: unidecode(s).casefold())
 
 datosAlumno = [list_materias, dni, nombre, apellido,
                sexo, antequien, carrera, uhsa, ultimahoja_fac]
