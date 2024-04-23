@@ -90,13 +90,16 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
     # lee el pdf y agrega la hoja foliada (solapa una hoja arriba de la existente).
     # el output es el nro de folios en el que quedo el contador.
     existing_pdf = PdfReader(open(archivo_ruta, 'rb'))
+    print(archivo_ruta)
     for i in range(0, len(existing_pdf.pages)):
         folio_start = folio_start + 1
         folioStr = f"Folio {folio_start:03d} de {num_total_pags:03d}"
         page = existing_pdf.pages[i]
         h = page.mediabox.height
         w = page.mediabox.width
+        print(h, w)
         orientation = existing_pdf.pages[i].mediabox
+        print(orientation)
         is_landscape = False
         if orientation.right - orientation.left > orientation.top - orientation.bottom:
             page = existing_pdf.pages[i].rotate(270)
@@ -104,6 +107,11 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
             is_landscape = True
         if h != 1008 or w != 612:
             page.scale_to(width=612, height=1008)
+
+        if is_landscape:
+            page.transfer_rotation_to_content()
+
+        print(h, w)
         # create a new PDF with Reportlab
         packet = io.BytesIO()
         packet = createFolioPage(folioStr, packet)
@@ -112,10 +120,8 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         new_pdf = PdfReader(packet)
         new_pdf.pages[0].scale_to(width=612, height=1008)
         # add the "watermark" (which is the new pdf) on the existing page
-        page.merge_page(new_pdf.pages[0], over=True)
-        if is_landscape:
-            page.transfer_rotation_to_content()
-        output.add_page(page)
+        new_pdf.pages[0].merge_page(page)
+        output.add_page(new_pdf.pages[0])
     return folio_start
 
 
