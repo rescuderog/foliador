@@ -97,9 +97,7 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         page = existing_pdf.pages[i]
         h = page.mediabox.height
         w = page.mediabox.width
-        print(h, w)
         orientation = existing_pdf.pages[i].mediabox
-        print(orientation)
         is_landscape = False
         if orientation.right - orientation.left > orientation.top - orientation.bottom:
             page = existing_pdf.pages[i].rotate(270)
@@ -111,7 +109,6 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         if is_landscape:
             page.transfer_rotation_to_content()
 
-        print(h, w)
         # create a new PDF with Reportlab
         packet = io.BytesIO()
         packet = createFolioPage(folioStr, packet)
