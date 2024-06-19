@@ -39,6 +39,9 @@ if uhsa:
 else:
     uhsa = False
 
+if not antequien:
+    antequien = 'quien corresponda'
+
 diccionario = leer_archivos_en_carpeta(CARPETA_TARGET)
 list_archivos = []
 list_names = []
