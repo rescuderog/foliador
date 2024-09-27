@@ -26,6 +26,17 @@ with open('ignore_files.json', encoding="utf8") as j:
     for key in data['ignore_files'].keys():
         ignore_files[key] = True
 
+is_img = input('Existen programas problematicos? (Ingresar algo, de lo contrario, presionar ENTER): ')
+if is_img:
+    is_img = True
+    dpi = input('Cuantos DPI queres que tenga las imagenes (default 200): ')
+    if not dpi:
+        dpi = 200
+else:
+    is_img = False
+    dpi = 200
+
+
 dni = input('Ingresar el DNI del alumno: ')
 nombre = input('Ingresar el nombre del alumno: ')
 apellido = input('Ingresar el apellido del alumno: ')
@@ -77,7 +88,7 @@ output = PdfWriter()
 registrar_fuente_custom('Verdana.ttf')
 
 for archivo in list_archivos:
-    folio_num = foliar_archivo(folio, archivo, numPags, output)
+    folio_num = foliar_archivo(folio, archivo, numPags, dpi, is_img, output)
     folio = folio_num
 
 consolidar_pdf(combinar_cwd_dir(CARPETA_TARGET), combinar_cwd_dir(

@@ -11,6 +11,7 @@ from num2words import num2words
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from unidecode import unidecode
+from pdf2image import convert_from_path
 
 # metodos principales
 
@@ -43,7 +44,18 @@ def chequear_word(extension):
     if extension == ".doc" or extension == ".docx":
         return True
     else:
-        return False
+        return False  
+
+def convertir_a_jpeg(pdf_path, dpi=300):
+    images = convert_from_path(pdf_path=pdf_path, dpi=dpi, poppler_path=combinar_cwd_dir('./poppler/bin'))
+    new_images = []
+    for img in images:
+        newimg = img.convert('RGB')
+        new_images.append(newimg)
+    image1 = new_images.pop(0)
+    new_img_path = os.path.join(combinar_cwd_dir('./tmpimgs/'), f'TempImg-{datetime.now().timestamp()}.pdf')
+    image1.save(fp=new_img_path, save_all=True, append_images=new_images, optimize=True, quality=90)
+    return new_img_path
 
 
 def convertir_a_pdf(archivo_ruta, archivo_nombre, target_dir):
@@ -86,11 +98,12 @@ def getNumOfPages(pdf_list):
     return totalNumOfPages
 
 
-def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter):
+def foliar_archivo(folio_start, archivo_ruta, num_total_pags, dpi, is_img: bool, output: PdfWriter):
     # lee el pdf y agrega la hoja foliada (solapa una hoja arriba de la existente).
     # el output es el nro de folios en el que quedo el contador.
+    if is_img:
+        archivo_ruta = convertir_a_jpeg(archivo_ruta, dpi)
     existing_pdf = PdfReader(open(archivo_ruta, 'rb'))
-    print(archivo_ruta)
     for i in range(0, len(existing_pdf.pages)):
         folio_start = folio_start + 1
         folioStr = f"Folio {folio_start:03d} de {num_total_pags:03d}"
@@ -117,7 +130,7 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, output: PdfWriter)
         new_pdf = PdfReader(packet)
         new_pdf.pages[0].scale_to(width=612, height=1008)
         # add the "watermark" (which is the new pdf) on the existing page
-        new_pdf.pages[0].merge_page(page)
+        new_pdf.pages[0].merge_page(page, over=False)
         output.add_page(new_pdf.pages[0])
     return folio_start
 
