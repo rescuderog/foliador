@@ -26,17 +26,6 @@ with open('ignore_files.json', encoding="utf8") as j:
     for key in data['ignore_files'].keys():
         ignore_files[key] = True
 
-is_img = input('Existen programas problematicos? (Ingresar algo, de lo contrario, presionar ENTER): ')
-if is_img:
-    is_img = True
-    dpi = input('Cuantos DPI queres que tenga las imagenes (default 200): ')
-    if not dpi:
-        dpi = 200
-else:
-    is_img = False
-    dpi = 200
-
-
 dni = input('Ingresar el DNI del alumno: ')
 nombre = input('Ingresar el nombre del alumno: ')
 apellido = input('Ingresar el apellido del alumno: ')
@@ -53,10 +42,19 @@ else:
 if not antequien:
     antequien = 'quien corresponda'
 
-diccionario = leer_archivos_en_carpeta(CARPETA_TARGET)
+diccionario, hay_img = leer_archivos_en_carpeta(CARPETA_TARGET)
+
+if hay_img:
+    dpi = input('Cuantos DPI queres que tenga las imagenes (default 200): ')
+    if not dpi:
+        dpi = 200
+else:
+    dpi = 200
+
 list_archivos = []
 list_names = []
 list_materias = []
+list_isimg = []
 
 for key in diccionario:
     if key['completo'] in ignore_files.keys():
@@ -66,9 +64,11 @@ for key in diccionario:
     if path:
         list_archivos.append(path)
         list_names.append(key['nombre'])
+        list_isimg.append(key['is_img'])
     else:
         list_archivos.append(key['ruta'])
         list_names.append(key['nombre'])
+        list_isimg.append(key['is_img'])
 
 for i, nombre_archivo in enumerate(list_names):
     new_name = input(
@@ -85,10 +85,14 @@ numPags = simulate_generar_uh(datosAlumno, getNumOfPages(
     list_archivos), combinar_cwd_dir(CARPETA_TEMP))
 folio = 0
 output = PdfWriter()
+for page in output.pages:
+    page.compress_content_streams(level=9)
+output.compress_identical_objects(remove_identicals=True, remove_orphans=True)
+
 registrar_fuente_custom('Verdana.ttf')
 
-for archivo in list_archivos:
-    folio_num = foliar_archivo(folio, archivo, numPags, dpi, is_img, output)
+for i, archivo in enumerate(list_archivos):
+    folio_num = foliar_archivo(folio, archivo, numPags, dpi, list_isimg[i], output)
     folio = folio_num
 
 consolidar_pdf(combinar_cwd_dir(CARPETA_TARGET), combinar_cwd_dir(
@@ -105,6 +109,5 @@ if numero > 4:
         print(skull3)
 
     print("\n\n\n\n")
-
 
 input("Programas finalizados! Chequear en la carpeta foliado. Saludos")

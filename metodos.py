@@ -26,18 +26,26 @@ def combinar_cwd_dir(directorio):
 
 def leer_archivos_en_carpeta(carpeta):
     folderPath = combinar_cwd_dir(carpeta)
+    hay_img = False
     listArchivos = []
     for i, file in enumerate(os.listdir(folderPath)):
         if os.path.isfile(os.path.join(folderPath, file)):
             nombre, extension = os.path.splitext(file)
+            if nombre.startswith("+"):
+                nombre = nombre[1:]
+                is_img = True
+                hay_img = True
+            else:
+                is_img = False
             listArchivos.append({
                 'nombre': nombre,
                 'ext': extension,
                 'completo': file,
-                'ruta': os.path.join(folderPath, file)
+                'ruta': os.path.join(folderPath, file),
+                'is_img': is_img
             })
     listArchivos.sort(key=lambda s: unidecode(s['nombre']).casefold())
-    return listArchivos
+    return listArchivos, hay_img
 
 
 def chequear_word(extension):
@@ -114,13 +122,13 @@ def foliar_archivo(folio_start, archivo_ruta, num_total_pags, dpi, is_img: bool,
         is_landscape = False
         if orientation.right - orientation.left > orientation.top - orientation.bottom:
             page = existing_pdf.pages[i].rotate(270)
-            page.rotation = 270
             is_landscape = True
-        if h != 1008 or w != 612:
-            page.scale_to(width=612, height=1008)
 
         if is_landscape:
             page.transfer_rotation_to_content()
+
+        if h != 1008 or w != 612:
+            page.scale_to(width=612, height=1008)
 
         # create a new PDF with Reportlab
         packet = io.BytesIO()
