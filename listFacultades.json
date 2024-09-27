@@ -15,6 +15,22 @@
         "4": {
             "facultad": "Facultad de Ciencias Sociales",
             "hoja_modelo": "./modelosuh/modelofacsoc.docx"
+        },
+        "5": {
+            "facultad": "Facultad de Ciencias Médicas (Posgrado)",
+            "hoja_modelo": "./modelosuh/modelofacmedposgrado.docx"
+        },
+        "6": {
+            "facultad": "Facultad de Ciencias Médicas (Grado)",
+            "hoja_modelo": "./modelosuh/modelofacmedgrado.docx"
+        },
+        "7": {
+            "facultad": "Facultad de Filosofía y Letras",
+            "hoja_modelo": "./modelosuh/modelofacfilo.docx"
+        },
+        "8": {
+            "facultad": "Facultad de Artes y Ciencias Musicales",
+            "hoja_modelo": "./modelosuh/modelofacmusica.docx"
         }
     }
 }
