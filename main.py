@@ -33,6 +33,12 @@ sexo = input('Ingresar sexo del alumno (SOLO M o F): ')
 antequien = input('SOLO SI LO PIDE, ingresar ante quien se lo presenta: ')
 carrera = input('Ingrese la carrera del alumno: ')
 
+nomenclatura = input('Tienen la nueva nomenclatura los programas? (Ingresar algo, de lo contrario, presionar ENTER):')
+if nomenclatura:
+    nomenclatura = True
+else:
+    nomenclatura = False
+
 uhsa = input('UHSA? (Ingresar algo, de lo contrario, presionar ENTER): ')
 if uhsa:
     uhsa = True
@@ -42,7 +48,7 @@ else:
 if not antequien:
     antequien = 'quien corresponda'
 
-diccionario, hay_img = leer_archivos_en_carpeta(CARPETA_TARGET)
+diccionario, hay_img = leer_archivos_en_carpeta(CARPETA_TARGET, nomenclatura)
 
 if hay_img:
     dpi = input('Cuantos DPI queres que tenga las imagenes (default 200): ')

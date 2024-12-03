@@ -1,6 +1,7 @@
 import os
 import io
 import locale
+import re
 from comtypes.client import CreateObject
 from pypdf import PdfReader, PdfWriter
 from docxtpl import DocxTemplate
@@ -24,7 +25,8 @@ def combinar_cwd_dir(directorio):
     return os.path.join(os.getcwd(), directorio)
 
 
-def leer_archivos_en_carpeta(carpeta):
+def leer_archivos_en_carpeta(carpeta, nomenclatura):
+    nomenclatura_match = re.compile(r'(.*)_(.*)_(.*)_(.*)')
     folderPath = combinar_cwd_dir(carpeta)
     hay_img = False
     listArchivos = []
@@ -37,6 +39,11 @@ def leer_archivos_en_carpeta(carpeta):
                 hay_img = True
             else:
                 is_img = False
+            if nomenclatura:
+                try:
+                    nombre = nomenclatura_match.match(nombre).group(4)
+                except:
+                    pass
             listArchivos.append({
                 'nombre': nombre,
                 'ext': extension,
