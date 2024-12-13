@@ -6,7 +6,8 @@ from comtypes.client import CreateObject
 from pypdf import PdfReader, PdfWriter
 from docxtpl import DocxTemplate
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.colors import white, black
+from reportlab.lib.pagesizes import letter
 from datetime import datetime
 from num2words import num2words
 from reportlab.pdfbase import pdfmetrics
@@ -92,13 +93,13 @@ def convertir_a_pdf(archivo_ruta, archivo_nombre, target_dir):
 def createFolioPage(folioStr, packet):
     # crea la pagina solapada de folio, retorna el paquete de bytes
     can = canvas.Canvas(packet, pagesize=letter)
-    can.setFont("Verdana", 18)
-    can.roundRect(485, 730, 100, 50, 1.5)
-    can.drawImage("logoUCAlong.jpg", 490, 750, 90, 30,
+    can.setFillColor(white)
+    can.roundRect(515, 760, 80, 30, 1.5, fill=1)
+    can.drawImage("logoUCAlong.jpg", 518, 774, 75, 15,
                   mask='auto',  preserveAspectRatio=True)
-    # can.drawString(529, 967, "UCA")
-    can.setFont("Verdana", 11)
-    can.drawString(489, 740, folioStr)
+    can.setFont("Verdana", 9)
+    can.setFillColor(black)
+    can.drawString(517, 763, folioStr)
     can.showPage()
     can.save()
     return packet
